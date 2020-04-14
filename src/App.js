@@ -1,66 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import styled from '@emotion/styled';
-import Frase from './components/Frase'
+import React, { useState, useEffect, Fragment } from 'react';
 
-const Boton = styled.button`
-  background: -webkit-linear-gradient(top left, #007d35 0%, #007d35 40%, #0f574e 100%);
-  background-size: 300px;
-  font-family: Arial, Helvetica, sans-serif;
-  color: #fff;
-  margin-top: 3rem;
-  padding: 1rem 3rem;
-  font-size: 2rem;
-  border: 2px solid black;
-  outline: none;
-  transition: background-size 0.3s ease;
-  
-  &:hover {
-    cursor: pointer;
-    background-size: 400px;
-  }
-`
-
-const Contenedor = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  padding-top: 5rem;
-`;
+// Componentes
+import Header from './components/Header'
+import Formulario from './components/Formulario'
+import ListadoNoticias from './components/ListadoNoticias'
+import Spinner from './components/Spinner'
 
 function App() {
 
-  const [frase, setFrase] = useState({})
+  // Main State
+  const [categoria, setCategoria] = useState('')
+  const [noticias, setNoticias] = useState([])
+  const [cargando, setCargando] = useState(true)
 
-  const consultarAPI = () => {
-    // Consultando una API con fetchAPI
-    const api = fetch('https://breaking-bad-quotes.herokuapp.com/v1/quotes')
-    const frase = api.then(respuesta => respuesta.json() )
-    frase.then(resultado => setFrase(resultado[0]))
-  }
-
-  const consultarAPI2 = async () => {
-    // Consultando con async/await
-    const api = await fetch('https://breaking-bad-quotes.herokuapp.com/v1/quotes')
-    const frase = await api.json()
-    setFrase(frase[0])
-  }
-
-  // Cargar una frase
   useEffect(() => {
-    consultarAPI()
-  }, [])
+    const consultarAPI = async () => {
+      const apiKey = 'b95d49df008e42f6b0ef4ee697c24f50'
+      const url = `http://newsapi.org/v2/top-headlines?country=mx&category=${categoria}&apiKey=${apiKey}`
+
+      const respuesta = await fetch(url)
+      const noticia = await respuesta.json()
+      setNoticias(noticia.articles)
+    }
+    
+    setTimeout(() => {
+      consultarAPI()
+      setCargando(false)
+    }, 2000)
+
+  }, [categoria])
+
+  let componente = (cargando) 
+    ? <Spinner /> 
+    : <ListadoNoticias 
+        noticias={noticias}
+      />  
 
   return (
-    <Contenedor>
-      <Frase 
-        frase={frase}
+    <Fragment>
+      <Header 
+        titulo="Buscador de Noticias"
       />
-      <Boton
-        onClick={() => consultarAPI2()}
-      >
-        Obtener frase
-      </Boton>
-    </Contenedor>
+      <div className="container white">
+        <Formulario 
+          setCategoria={setCategoria}
+          setCargando={setCargando}
+        />
+        { componente }        
+      </div>
+    </Fragment>
   );
 }
 
