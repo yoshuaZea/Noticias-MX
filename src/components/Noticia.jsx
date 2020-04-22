@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import PropTypes from 'prop-types';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
@@ -8,7 +8,10 @@ const Noticia = ({noticia}) => {
     const { urlToImage, url, title, description, source } = noticia
 
     const imagen = (urlToImage) 
-    ? <img src={urlToImage} alt={title} />
+    ? <Fragment>
+        <img src={urlToImage} alt={title} />
+        <span className="card-title">{source.name}</span>
+      </Fragment>
     : null
 
     return ( 
@@ -24,7 +27,6 @@ const Noticia = ({noticia}) => {
                     <div className="card">
                         <div className="card-image">
                             { imagen }
-                            <span className="card-title">{source.name}</span>
                         </div>
 
                         <div className="card-content">
